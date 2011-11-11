@@ -1,0 +1,216 @@
+<html>
+	<head>
+		<title>Game of Life</title>
+	</head>
+	<body style="font-family:helvetica">
+		<h1>Conway's Game of life</h1><hr/>
+		<p style="font-size:16px;">This is a demonstration of <a href="http://en.wikipedia.org/wiki/Conway's_Game_of_Life">Conway's Game of life.</a> If you dont know about it, please follow the wikipedia link, read it and then come back here.</p>
+		<br/>
+		<div style="position:relative;height:500px;text-align:center">
+			<div style="float:left;width:500px">
+			<canvas id="myCanvas" width="400" height="400" style="border:1px solid #c3c3c3;">You don't seem to have canvas support :(</canvas>
+			</div>
+			<div style="float:left;width:350px">
+				<table>
+					<tr>
+						<td>Oscillator (beacon)</td>
+						<td><input type="button" onclick="generateRadomPattern(1)" value="Pattern 1" /></td>
+					</tr>
+					<tr>
+						<td>Oscillator (blinker)</td>
+						<td><input type="button" onclick="generateRadomPattern(2)" value="Pattern 2" /></td>
+					</tr>
+					<tr>
+						<td>Oscillator (toad)</td>
+						<td><input type="button" onclick="generateRadomPattern(3)" value="Pattern 3" /></td>
+					</tr>
+					<tr>
+						<td>Spaceship (glider)</td>
+						<td><input type="button" onclick="generateRadomPattern(4)" value="Pattern 4" /></td>
+					</tr>
+					<tr>
+						<td>Random</td>
+						<td><input type="button" onclick="generateRadomPattern(0)" value="Random" /></td>
+					</tr>
+					<tr>
+						<td>(you will love this the most, trust me!) </td>
+						<td></td>
+					</tr>	
+				</table>
+			</div>
+		</div>	
+		<div style="text-align:center;font-size:12px;">
+			You need a Html 5 supported browser to see this. I have tested this on Firefox and Chrome.<br/>
+			If you find any bugs, please email me at singh.roshan08 AT gmail.com
+		</div>
+		
+		<script type="text/javascript">
+			var canvasX = 400;
+			var canvasY = 400;
+			var dotSize = 10;
+			
+			var containerX = canvasX/dotSize;
+			var containerY = canvasY/dotSize;
+			
+			var c = document.getElementById("myCanvas");
+			
+			var cxt = c.getContext("2d");
+			
+			cxt.fillStyle="#EEE";
+			cxt.fillRect(0, 0, containerX, containerY);
+			cxt.fillStyle="#FF0000";
+			
+			function generateTemplate() {
+				var template = Array(containerX);
+				for (var i=0; i<containerX; i++) {
+					template[i] = Array(containerY);
+				
+					for (var j=0; j<containerY; j++) {
+						template[i][j] = 0;
+					}
+				}
+				return template;
+			}
+			
+			/*
+			var containerArray = Array(containerX);
+			for (var i=0; i<containerX; i++) {
+				containerArray[i] = Array(containerY);
+				
+				for (var j=0; j<containerY; j++) {
+					containerArray[i][j] = 0;
+				}
+			}*/
+			
+			//one time random generation of array 5,5 with 10 filled dots
+			function generateRadomPattern(type) {
+				containerArray = generateTemplate();
+				// two sq
+				if(type == 1) {
+					containerArray[4][5] = 1;
+					containerArray[5][5] = 1;
+					containerArray[4][6] = 1;
+					containerArray[5][6] = 1;
+					containerArray[6][7] = 1;
+					containerArray[6][8] = 1;
+					containerArray[7][7] = 1;
+					containerArray[7][8] = 1;
+				}
+				
+				
+				//straight line (blinker)
+				else if (type == 2) {
+					containerArray[4][5] = 1;
+					containerArray[4][6] = 1;
+					containerArray[4][7] = 1;
+				}
+				
+				//oscillator (toad)
+				else if (type == 3) {
+					containerArray[6][4] = 1;
+					containerArray[7][4] = 1;
+					containerArray[8][4] = 1;
+					
+					containerArray[5][5] = 1;
+					containerArray[6][5] = 1;
+					containerArray[7][5] = 1;
+				}
+				
+				//glider
+				else if (type == 4) {
+					containerArray[3][7] = 1;
+					containerArray[4][8] = 1;
+					containerArray[5][6] = 1;
+					
+					containerArray[5][7] = 1;
+					containerArray[5][8] = 1;
+				}
+				
+				else {
+					for (var i=0; i<50; i++) {
+						var x = Math.floor(Math.random()*(containerX - dotSize));
+						var y = Math.floor(Math.random()*(containerY - dotSize));
+						
+						containerArray[x][y] = 1;
+					}
+				}
+				
+				replot();
+			}
+			
+			function calculateNeighbours(x,y) {
+				var countNow = 0;
+				
+				for (var i=x-1; i<=x+1 && i<containerX; i++) {
+					//corner cases
+					if (i<0)
+						continue;
+					for (var j=y-1; j<=y+1 && j<containerY; j++) {
+						if (j<0)
+							continue;
+						
+						if (!(x==i && y==j) && containerArray[i][j] == 1) {
+							countNow++;
+						}
+					}
+				}
+				return countNow;
+			}
+			
+			function replot() {
+				cxt.fillStyle="#EEE";
+				cxt.fillRect(0, 0, canvasX, canvasY);
+			
+				cxt.fillStyle="#FF0000";
+				
+				for (var i=0; i<containerX; i++) {
+					for (var j=0; j<containerY; j++) {
+						if (containerArray[i][j] == 1) {
+							
+							cxt.fillRect(i*dotSize, j*dotSize, dotSize, dotSize);
+						}
+					}
+				}
+			}
+			
+			generateRadomPattern(0);
+			
+			var moveInterval = setInterval(moveNow, 300);
+
+			function moveNow() {
+				var temp = generateTemplate();
+
+				for (var i=0; i<containerX; i++) {
+					for (var j=0; j<containerY; j++) {
+						var count = calculateNeighbours(i,j);
+						
+						//if live cell
+						if (containerArray[i][j] == 1) {
+							//if neighbour count is less than two or greater than three, then die
+							
+							if (count < 2 || count > 3) {
+								temp[i][j] = 0;
+							}
+							//if neighbour count is two or three, then survive
+							if (count == 2 || count == 3) {
+								temp[i][j] = 1;
+							}
+							
+						}
+						
+						//if dead cell
+						if (containerArray[i][j] == 0) {
+							//if neighbour count is three, then become live
+							if (count == 3) {
+								temp[i][j] = 1;
+							}
+						}
+					}
+				}
+				containerArray = temp;
+				replot();
+			}
+			
+		</script>
+	</body>	
+</html>

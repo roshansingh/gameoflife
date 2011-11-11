@@ -1,0 +1,6 @@
+This is a working demo of Conway's game of life(http://en.wikipedia.org/wiki/Conway's_Game_of_Life). 
+
+You will need an Html 5 supported browser to see this. Latest versions of all major browsers support it.
+I have tested this on firefox and chrome.
+
+An online demo is already available on http://roshansingh.in/code/gameoflife/
